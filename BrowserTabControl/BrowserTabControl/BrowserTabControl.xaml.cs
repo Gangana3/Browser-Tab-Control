@@ -125,33 +125,6 @@ namespace BrowserTabControl
         {
             EnsureFit();            
         }
-
-        /// <summary>
-        /// Makes sure that the width of all the tabs together stays smaller or equal to the size
-        /// of the control itself.
-        /// </summary>
-        private void EnsureFit()
-        {
-            // Size of the new tab button including the margins
-            double addNewTabButtonWidth = PlusButtonMarginLeft * 2 + this.addNewTabButton.ActualWidth;
-
-            if (this.TabCount > 0 && this.tabControl.ActualWidth != 0)
-            {
-                if (this.TabCount * this.tabItems[0].MaxWidth > this.tabControl.ActualWidth - addNewTabButtonWidth)
-                {
-                    // In case the sum of the tabs widths is bigger than the width of the control make the tabs smaller
-                    foreach (TabItem item in this.tabItems)
-                        item.Width = (this.tabControl.ActualWidth - addNewTabButtonWidth) / this.TabCount;
-                    this.addNewTabButton.Margin = this.AddNewTabMargin;
-                }
-                else
-                {
-                    foreach (TabItem item in this.tabItems)                    
-                        item.Width = item.MaxWidth;
-                    this.addNewTabButton.Margin = this.AddNewTabMargin;
-                }
-            }
-        }
         #endregion
 
         #region private functions
@@ -214,6 +187,34 @@ namespace BrowserTabControl
             };
 
             return item;
+        }
+
+
+        /// <summary>
+        /// Makes sure that the width of all the tabs together stays smaller or equal to the size
+        /// of the control itself.
+        /// </summary>
+        private void EnsureFit()
+        {
+            // Size of the new tab button including the margins
+            double addNewTabButtonWidth = PlusButtonMarginLeft * 2 + this.addNewTabButton.ActualWidth;
+
+            if (this.TabCount > 0 && this.tabControl.ActualWidth != 0)
+            {
+                if (this.TabCount * this.tabItems[0].MaxWidth > this.tabControl.ActualWidth - addNewTabButtonWidth)
+                {
+                    // In case the sum of the tabs widths is bigger than the width of the control make the tabs smaller
+                    foreach (TabItem item in this.tabItems)
+                        item.Width = (this.tabControl.ActualWidth - addNewTabButtonWidth) / this.TabCount;
+                    this.addNewTabButton.Margin = this.AddNewTabMargin;
+                }
+                else
+                {
+                    foreach (TabItem item in this.tabItems)
+                        item.Width = item.MaxWidth;
+                    this.addNewTabButton.Margin = this.AddNewTabMargin;
+                }
+            }
         }
         #endregion
     }
