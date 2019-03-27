@@ -149,8 +149,12 @@ namespace BrowserTabControl
         private TabItem CreateTabItem(string header)
         {
             TabItem item = new TabItem();
+
             // Create all the UI elements
-            var dockPanel = new DockPanel();
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(25) });
+
             var label = new Label()
             {
                 Content = header,
@@ -168,9 +172,11 @@ namespace BrowserTabControl
             // Arrange the UI elements together and set the header to the result
             imageWrapper.Child = image;
             label.Name = "title";
-            dockPanel.Children.Add(label);
-            dockPanel.Children.Add(imageWrapper);
-            item.Header = dockPanel;
+            grid.Children.Add(label);
+            grid.Children.Add(imageWrapper);
+            Grid.SetColumn(label, 0);
+            Grid.SetColumn(imageWrapper, 1);
+            item.Header = grid;
 
             // Handle the x button press
             imageWrapper.MouseDown += (object sender, MouseButtonEventArgs e) =>
