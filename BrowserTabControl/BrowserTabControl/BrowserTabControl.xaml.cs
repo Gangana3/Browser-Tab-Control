@@ -21,23 +21,33 @@ namespace BrowserTabControl
     public partial class MyBrowserTabControl : UserControl
     {
         // Private constants
-        private const double TabWidth = 150;                // Width of the tab header
         private const double PlusButtonMarginTop = 5;       // The margin of the + button from top
         private const double PlusButtonMarginLeft = 5;      // The margin of the + button from top
 
+        // Private fields
+        private List<TabItem> tabItems;                     // List of all the tab items within the tab control
+
         // public Properties
-        public int TabCount { get; set; }                   // Counts the number of tabs
+        public int TabCount                                 // Counts the number of tabs
+        {
+            get
+            {
+                return this.tabItems.Count;
+            }
+        }                   
 
         // public events
-        public event EventHandler NewTabButtonClick;      // Event for adding a new tab
+        public event EventHandler NewTabButtonClick;        // Event for adding a new tab
         public event EventHandler TabClosed;                // Event for closing a tab
 
         public MyBrowserTabControl()
         {
             InitializeComponent();
+            this.tabItems = new List<TabItem>();
+            this.tabControl.SizeChanged += this.TabControlSizeChangedHandler;
 
             // Margin the add new tab button
-            this.addNewTabButton.Margin = this.GetAddNewTabButtonMargin;
+            this.addNewTabButton.Margin = this.AddNewTabMargin;
         }
 
         /// <summary>
@@ -47,33 +57,44 @@ namespace BrowserTabControl
         /// <param name="content">tab's content</param>
         public void AddTab(string header, UIElement content)
         {
-            TabCount++; // Increase the tab count by 1
-
-            // Move the + button right
-            this.addNewTabButton.Margin = this.GetAddNewTabButtonMargin;
-
             // Create a tab item and add it to the tab control;
             TabItem item = this.CreateTabItem(header);
             item.Content = content;                         // Put the given content inside the tab item
             this.tabControl.Items.Add(item);                // Add the complete tab to the UI
+            this.tabItems.Add(item);
+
+            // Move the + button right
+            this.addNewTabButton.Margin = this.AddNewTabMargin;
         }
 
         #region Private properties
-        /// <summary>
-        /// Current margin of the add new tab button
-        /// </summary>
-        private Thickness GetAddNewTabButtonMargin
+        private double TotalHeadersWidth
         {
             get
             {
-                return new Thickness(TabWidth * this.TabCount + PlusButtonMarginLeft, PlusButtonMarginTop, 0, 0);
+                double sum = 0;
+                foreach (TabItem item in this.tabItems)
+                    sum += item.Width;
+                return sum;
+            }
+           
+        }
+        /// <summary>
+        /// Current margin of the add new tab button
+        /// </summary>
+        private Thickness AddNewTabMargin
+        {
+            get
+            {
+                double sum = this.TotalHeadersWidth;
+                return new Thickness(sum + PlusButtonMarginLeft, PlusButtonMarginTop, 0, 0);
             }
         }
         #endregion
 
         #region Events Functions
         /// <summary>
-        /// Shold be called when a new tab is created
+        /// Should be called when a new tab is created
         /// </summary>
         protected virtual void OnNewTabButtonClick()
         {
@@ -82,12 +103,30 @@ namespace BrowserTabControl
         }
 
         /// <summary>
-        /// SHould be called when a tab is closed
+        /// Should be called when a tab is closed
         /// </summary>
         protected virtual void OnTabClosed()
         {
             if (this.TabClosed != null)
                 this.TabClosed(this, EventArgs.Empty);
+        }
+        #endregion
+
+        #region Event Handlers
+        private void TabControlSizeChangedHandler(object sender, SizeChangedEventArgs e)
+        {
+            double addNewTabButtonWidth = PlusButtonMarginLeft * 2 + this.addNewTabButton.ActualWidth;  // Size of the new tab button including the margins
+
+            if (this.TabCount > 0)
+            {
+                if (this.TabCount * this.tabItems[0].MaxWidth > this.tabControl.ActualWidth - addNewTabButtonWidth)
+                {
+                    foreach (TabItem item in this.tabItems)
+                        item.Width = (this.tabControl.ActualWidth - addNewTabButtonWidth) / this.TabCount;
+                    this.addNewTabButton.Margin = this.AddNewTabMargin;
+                }
+            }
+            
         }
         #endregion
 
@@ -136,9 +175,9 @@ namespace BrowserTabControl
             // Handle the x button press
             imageWrapper.MouseDown += (object sender, MouseButtonEventArgs e) =>
             {
-                this.TabCount--;                                                // Decrease the tabCount
+                this.tabItems.Remove(item);                                     // Decrease the tabCount
                 this.tabControl.Items.Remove(item);                             // Remove the tab from the UI
-                this.addNewTabButton.Margin = this.GetAddNewTabButtonMargin;    // Margin the add new tab button
+                this.addNewTabButton.Margin = this.AddNewTabMargin;    // Margin the add new tab button
                 this.OnTabClosed();
             };
 
