@@ -65,6 +65,8 @@ namespace BrowserTabControl
 
             // Move the + button right
             this.addNewTabButton.Margin = this.AddNewTabMargin;
+
+            EnsureFit();        // Ensure fit when a new tab is added
         }
 
         #region Private properties
@@ -100,8 +102,6 @@ namespace BrowserTabControl
         {
             if (this.NewTabButtonClick != null)
                 this.NewTabButtonClick(this, EventArgs.Empty);
-
-            EnsureFit();        // Ensure fit when a new tab is added
         }
 
         /// <summary>
@@ -110,9 +110,7 @@ namespace BrowserTabControl
         protected virtual void OnTabClosed()
         {
             if (this.TabClosed != null)
-                this.TabClosed(this, EventArgs.Empty);
-
-            EnsureFit();        // Ensure fit when a tab is removed
+                this.TabClosed(this, EventArgs.Empty);            
         }
         #endregion
 
@@ -137,13 +135,19 @@ namespace BrowserTabControl
             // Size of the new tab button including the margins
             double addNewTabButtonWidth = PlusButtonMarginLeft * 2 + this.addNewTabButton.ActualWidth;
 
-            if (this.TabCount > 0)
+            if (this.TabCount > 0 && this.tabControl.ActualWidth != 0)
             {
                 if (this.TabCount * this.tabItems[0].MaxWidth > this.tabControl.ActualWidth - addNewTabButtonWidth)
                 {
                     // In case the sum of the tabs widths is bigger than the width of the control make the tabs smaller
                     foreach (TabItem item in this.tabItems)
                         item.Width = (this.tabControl.ActualWidth - addNewTabButtonWidth) / this.TabCount;
+                    this.addNewTabButton.Margin = this.AddNewTabMargin;
+                }
+                else
+                {
+                    foreach (TabItem item in this.tabItems)                    
+                        item.Width = item.MaxWidth;
                     this.addNewTabButton.Margin = this.AddNewTabMargin;
                 }
             }
@@ -203,8 +207,10 @@ namespace BrowserTabControl
             {
                 this.tabItems.Remove(item);                                     // Decrease the tabCount
                 this.tabControl.Items.Remove(item);                             // Remove the tab from the UI
-                this.addNewTabButton.Margin = this.AddNewTabMargin;    // Margin the add new tab button
+                this.addNewTabButton.Margin = this.AddNewTabMargin;             // Margin the add new tab button
                 this.OnTabClosed();
+
+                EnsureFit();        // Ensure fit when a tab is closed
             };
 
             return item;
