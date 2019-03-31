@@ -5,6 +5,6 @@ When I wanted to build my own web browser in wpf, I had an issue of missing a ta
 
 # Demonstration
 [Imgur](https://i.imgur.com/EHFicGm.png)
-![Tab Control Demonstration](https://i.imgur.com/EHFicGm.png)
+![Tab Control Demonstration](https://i.imgur.com/AOy1B4r.png)
 ![Tab Control Demonstration](https://i.imgur.com/AOy1B4r.png)
 ![Tab Control Demonstration](https://i.imgur.com/eKZKg7T.png)
